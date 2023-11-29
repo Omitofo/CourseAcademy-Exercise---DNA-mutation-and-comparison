@@ -1,0 +1,110 @@
+// Returns a random DNA base
+const returnRandBase = () => {
+  const dnaBases = ['A', 'T', 'C', 'G']
+  return dnaBases[Math.floor(Math.random() * 4)] 
+};
+
+
+
+// Returns a random single strand of DNA containing 15 bases
+const mockUpStrand = () => {
+  const newStrand = []
+  for (let i = 0; i < 15; i++) {
+    newStrand.push(returnRandBase())
+  }
+  return newStrand
+};
+
+
+
+
+const pAequorFactory = (number, array) => {
+  return { 
+    specimenNum: number,
+    dna: array,
+    mutate: function () {
+      // Randomly select an index
+      const randomIndex = Math.floor(Math.random() * this.dna.length);
+      
+      // Get the current base at the randomly selected index
+      const currentBase = this.dna[randomIndex];
+
+      // Generate an array of possible bases excluding the current base
+      const possibleBases = ['A', 'T', 'C', 'G'].filter(base => base !== currentBase);
+
+      // Randomly select a new base from the possible bases
+      const newBase = possibleBases[Math.floor(Math.random() * 3)];
+
+      // Update the DNA array with the new base
+      this.dna[randomIndex] = newBase;
+
+      // Return the modified DNA array
+      return this.dna;
+    },
+
+    compareDNA: function (otherOrganism) {
+      // Check if the other organism is a valid pAequor
+      if (!otherOrganism || !otherOrganism.dna || !Array.isArray(otherOrganism.dna)) {
+        console.log("Invalid comparison. Please provide a valid pAequor object.");
+        return;
+      }
+
+      
+      // Calculate the number of identical bases at the same locations
+      let identicalBases = 0;
+      for (let i = 0; i < this.dna.length; i++) {
+        if (this.dna[i] === otherOrganism.dna[i]) {
+          identicalBases++;
+        }
+      }
+
+      // Calculate the percentage of DNA in common
+    const percentageSimilarity = (identicalBases / this.dna.length) * 100;
+
+    console.log(`Specimen #${this.specimenNum} and Specimen #${otherOrganism.specimenNum} have ${percentageSimilarity.toFixed(2)}% DNA in common.`);
+    
+    return percentageSimilarity; 
+    },
+
+     willLikelySurvive: function () {
+      // Calcula el número de bases 'C' y 'G'
+      const cAndGBases = this.dna.filter(base => base === 'C' || base === 'G').length;
+
+      // Calcula el porcentaje de 'C' y 'G'
+      const percentageCG = (cAndGBases / this.dna.length) * 100;
+
+      // Devuelve true si al menos el 60% es 'C' o 'G', de lo contrario, devuelve false
+      return percentageCG >= 60;
+    }
+  };
+};
+
+
+const pAequorInstances = [];
+
+// Crear 30 instancias de pAequor
+for (let i = 1; i <= 30; i++) {
+  const organism = pAequorFactory(i, mockUpStrand());
+  
+  // Verificar si el organismo puede sobrevivir
+  if (organism.willLikelySurvive()) {
+    pAequorInstances.push(organism);
+  } else {
+    // Si el organismo no puede sobrevivir, intentar nuevamente con un nuevo ADN
+    i--;
+  }
+}
+
+
+const organism1 = pAequorFactory(1, mockUpStrand());
+const organism2 = pAequorFactory(2, mockUpStrand());
+
+const similarity = organism1.compareDNA(organism2);
+
+console.log(organism1);
+console.log(organism2);
+
+console.log(organism1.willLikelySurvive())
+console.log(organism2.willLikelySurvive())
+
+console.log(pAequorInstances)
